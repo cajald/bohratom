@@ -1,0 +1,51 @@
+\documentclass[
+	a4paper,
+	10pt,
+]{article}
+
+\usepackage{bohratom}
+\setcounter{page}{1}
+
+\title{Bohr's model: A \LaTeX\\ Library for making Bohr's Model renders}
+\author{Mario Rosell \texttt{<mario@mariorosell.es>}}
+
+\date{May, 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+	\noindent This \LaTeX{} package provides a TikZ-based, simplified animated interface for displaying atoms and their composition, visually, using Bohr's Model. It simplifies the listing by ommiting orbitals and assuming electrons orbit the nucleus.
+\end{abstract}
+
+\section{Introduction}
+
+Bohr's model (or Rutherford-Bohr model) is an obsolete (as a theory, but still used and mostly correct for illustration) model of what an atom looked like. It proposed that an atom had a nucleus, and electrons orbiting around the nucleus, analogous to the Solar System. It was based upon Ernest Rutherford's discovery of the atom nucleus, and incorporated some very early quantum concepts, and obsoleted the \textit{plum pudding model} of J.J. Thomson.
+
+This theory explained correctly the Rydberg formula for hydrogen's spectral emission lines, although at that time it was experimental. In the 1920s, it was replaced by the quantum mechanical model, which used \textit{orbitals} instead of a circular orbit, and is based on Schr\"odinger's wave equation, orbitals, and quantum physics.
+
+\section{Library API}
+
+Use the \texttt{\textbackslash bohrsatom} request to make a new atom display. It requires TikZ to be available and animation support, and takes two arguments: the name and the composition. The name is just text that will be displayed alongside the atom, and the composition is on the format of: \texttt{p=\textit{number of protons},e=\textit{number of electrons},n=\textit{number of neutrons}}. You can skip any \textit{key} to implicitly set it to zero.
+
+Additionally, you can use the \texttt{speed} key to set the angular velocity the electrons rotate around the nucleus, in degrees per frame. Default is $0.8$. The effective angular velocity for an atom with $6$ frames (the default) is:
+
+\[
+	\omega = 6 \cdot \texttt{speed}
+\]
+
+You can use the \texttt{tmax} key to determine how any frames are generated. If this number is high, compilation times and output size will be significantly higher, but the animation will be smoother, if it is lower, the animation will be less smooth, but smaller PDF size and fast compilation times.
+
+You can also used the \texttt{size} key to specify the size of the diagram, the default is $0.8$.
+
+On the future, options will be able to be overriden globally.
+
+\section{Examples}
+
+\bohrsatom{$^{4}He$}{p=2,n=2,e=2}
+\bohrsatom{$^{12}C$}{p=6,n=6,e=6,speed=2.0,tmax=60,size=1.0}
+\bohrsatom{$^{20}Ne$}{p=10,n=10,e=10}
+
+\end{document}
+

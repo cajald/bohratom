@@ -1,0 +1,225 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesExplPackage{bohrmodel}{2026/05/23}{1.2}{Bohr model (stable l3keys version)}
+
+\RequirePackage{tikz}
+\RequirePackage{animate}
+\RequirePackage{xparse}
+\RequirePackage{expl3}
+
+\ExplSyntaxOn
+
+% -------------------------------------------------
+% Variables
+% -------------------------------------------------
+\int_new:N \l_bohr_p_int
+\int_new:N \l_bohr_n_int
+\int_new:N \l_bohr_e_int
+\int_new:N \l_bohr_tmax_int
+
+\fp_new:N \l_bohr_size_fp
+\fp_new:N \l_bohr_speed_fp
+
+\bool_new:N \l_bohr_animate_bool
+
+\int_new:N \l_bohr_remaining_int
+\int_new:N \l_bohr_ea_int
+\int_new:N \l_bohr_eb_int
+\int_new:N \l_bohr_ec_int
+\int_new:N \l_bohr_ed_int
+
+\fp_new:N \l_bohr_angle_fp
+\fp_new:N \l_bohr_x_fp
+\fp_new:N \l_bohr_y_fp
+\fp_new:N \l_bohr_tmp_fp
+\fp_new:N \l_bohr_t_fp
+\fp_new:N \l_bohr_rA_fp
+\fp_new:N \l_bohr_rB_fp
+\fp_new:N \l_bohr_rC_fp
+\fp_new:N \l_bohr_rD_fp
+
+% -------------------------------------------------
+% Keys
+% -------------------------------------------------
+\keys_define:nn { bohr }
+  {
+    p       .int_set:N = \l_bohr_p_int,
+    n       .int_set:N = \l_bohr_n_int,
+    e       .int_set:N = \l_bohr_e_int,
+    tmax    .int_set:N = \l_bohr_tmax_int,
+    size    .fp_set:N  = \l_bohr_size_fp,
+    speed   .fp_set:N  = \l_bohr_speed_fp,
+    animate .bool_set:N = \l_bohr_animate_bool,
+    animate .initial:n  = true,
+  }
+
+% defaults
+\int_set:Nn \l_bohr_p_int { 0 }
+\int_set:Nn \l_bohr_n_int { 0 }
+\int_set:Nn \l_bohr_e_int { 0 }
+\int_set:Nn \l_bohr_tmax_int { 60 }
+
+\fp_set:Nn \l_bohr_size_fp { 0.7 }
+\fp_set:Nn \l_bohr_speed_fp { 0.5 }
+
+\bool_set_true:N \l_bohr_animate_bool
+
+% -------------------------------------------------
+% Nucleus
+% -------------------------------------------------
+\cs_new_protected:Npn \bohr_draw_nucleus:
+  {
+    \begin{scope}
+      \fill[red!70!black] (0,0) circle (7pt);
+
+      % protons
+      \int_compare:nNnT { \l_bohr_p_int } > { 0 }
+        {
+          \int_step_inline:nn { \l_bohr_p_int }
+            {
+              \fp_set:Nn \l_bohr_angle_fp { 360 / \l_bohr_p_int * ##1 }
+              \fp_set:Nn \l_bohr_x_fp { 0.18 * cos( \l_bohr_angle_fp ) }
+              \fp_set:Nn \l_bohr_y_fp { 0.18 * sin( \l_bohr_angle_fp ) }
+              \fill[red!70]
+                (\fp_to_decimal:N \l_bohr_x_fp,\fp_to_decimal:N \l_bohr_y_fp)
+                circle (1.2pt);
+            }
+        }
+
+      % neutrons
+      \int_compare:nNnT { \l_bohr_n_int } > { 0 }
+        {
+          \int_step_inline:nn { \l_bohr_n_int }
+            {
+              \fp_set:Nn \l_bohr_angle_fp { 360 / \l_bohr_n_int * ##1 }
+              \fp_set:Nn \l_bohr_x_fp { 0.34 * cos( \l_bohr_angle_fp ) }
+              \fp_set:Nn \l_bohr_y_fp { 0.34 * sin( \l_bohr_angle_fp ) }
+              \fill[gray!60]
+                (\fp_to_decimal:N \l_bohr_x_fp,\fp_to_decimal:N \l_bohr_y_fp)
+                circle (1.2pt);
+            }
+        }
+    \end{scope}
+  }
+
+% -------------------------------------------------
+% Electrons
+% -------------------------------------------------
+\cs_new_protected:Npn \bohr_draw_electrons:nnnnn #1#2#3#4#5
+  {
+    \int_compare:nNnT { #1 } > { 0 }
+      {
+        \int_step_inline:nn { #1 }
+          {
+            \fp_set:Nn \l_bohr_angle_fp
+              { (##1 * 360 / #1) + ( #3 * #5 ) + #4 }
+
+            \fp_set:Nn \l_bohr_x_fp { #2 * cos( \l_bohr_angle_fp ) }
+            \fp_set:Nn \l_bohr_y_fp { #2 * sin( \l_bohr_angle_fp ) }
+
+            \fill[blue!70!black]
+              (\fp_to_decimal:N \l_bohr_x_fp,\fp_to_decimal:N \l_bohr_y_fp)
+              circle (1.6pt);
+          }
+      }
+  }
+
+% -------------------------------------------------
+% Frame renderer
+% -------------------------------------------------
+\cs_new_protected:Npn \bohr_render_frame:n #1
+  {
+    \begin{tikzpicture}[scale=\fp_to_decimal:N \l_bohr_size_fp]
+
+      \node at (0,3.2) {\textbf{#1}};
+
+      \bohr_draw_nucleus:
+
+      % shell radii
+      \fp_set:Nn \l_bohr_rA_fp { 1.2 }
+      \fp_set:Nn \l_bohr_rB_fp { 1.8 }
+      \fp_set:Nn \l_bohr_rC_fp { 2.4 }
+      \fp_set:Nn \l_bohr_rD_fp { 3.0 }
+
+      % distribute electrons across shells
+      \int_set_eq:NN \l_bohr_remaining_int \l_bohr_e_int
+
+      \int_set:Nn \l_bohr_ea_int { \int_min:nn { 2 } { \l_bohr_remaining_int } }
+      \int_sub:Nn \l_bohr_remaining_int { \l_bohr_ea_int }
+
+      \int_set:Nn \l_bohr_eb_int { \int_min:nn { 8 } { \l_bohr_remaining_int } }
+      \int_sub:Nn \l_bohr_remaining_int { \l_bohr_eb_int }
+
+      \int_set:Nn \l_bohr_ec_int { \int_min:nn { 18 } { \l_bohr_remaining_int } }
+      \int_sub:Nn \l_bohr_remaining_int { \l_bohr_ec_int }
+
+      \int_set:Nn \l_bohr_ed_int { \int_min:nn { 32 } { \l_bohr_remaining_int } }
+
+      % frame counter from animate
+      \fp_set:Nn \l_bohr_t_fp { \i }
+
+      % draw only non-empty shells
+      \int_compare:nNnT { \l_bohr_ea_int } > { 0 }
+        {
+          \draw[gray!25] (0,0) circle (\fp_to_decimal:N \l_bohr_rA_fp);
+          \bohr_draw_electrons:nnnnn
+            { \l_bohr_ea_int } { \fp_to_decimal:N \l_bohr_rA_fp }
+            { \fp_to_decimal:N \l_bohr_speed_fp } { 0 } { \fp_to_decimal:N \l_bohr_t_fp }
+        }
+
+      \int_compare:nNnT { \l_bohr_eb_int } > { 0 }
+        {
+          \draw[gray!25] (0,0) circle (\fp_to_decimal:N \l_bohr_rB_fp);
+          \bohr_draw_electrons:nnnnn
+            { \l_bohr_eb_int } { \fp_to_decimal:N \l_bohr_rB_fp }
+            { \fp_to_decimal:N \l_bohr_speed_fp } { 25 } { \fp_to_decimal:N \l_bohr_t_fp }
+        }
+
+      \int_compare:nNnT { \l_bohr_ec_int } > { 0 }
+        {
+          \draw[gray!25] (0,0) circle (\fp_to_decimal:N \l_bohr_rC_fp);
+          \bohr_draw_electrons:nnnnn
+            { \l_bohr_ec_int } { \fp_to_decimal:N \l_bohr_rC_fp }
+            { \fp_to_decimal:N \l_bohr_speed_fp } { 50 } { \fp_to_decimal:N \l_bohr_t_fp }
+        }
+
+      \int_compare:nNnT { \l_bohr_ed_int } > { 0 }
+        {
+          \draw[gray!25] (0,0) circle (\fp_to_decimal:N \l_bohr_rD_fp);
+          \bohr_draw_electrons:nnnnn
+            { \l_bohr_ed_int } { \fp_to_decimal:N \l_bohr_rD_fp }
+            { \fp_to_decimal:N \l_bohr_speed_fp } { 75 } { \fp_to_decimal:N \l_bohr_t_fp }
+        }
+
+      \node[blue!60!black] at (3.5,3)
+        {\scriptsize $e^- = \int_use:N \l_bohr_e_int$};
+
+    \end{tikzpicture}
+  }
+
+% -------------------------------------------------
+% Public command
+% -------------------------------------------------
+\NewDocumentCommand{\bohrsatom}{m m}
+  {
+    \group_begin:
+    \keys_set:nn { bohr } { #2 }
+
+    \bool_if:NF \l_bohr_animate_bool
+      {
+        \bohr_render_frame:n { #1 }
+      }
+
+    \bool_if:NT \l_bohr_animate_bool
+      {
+        \begin{animateinline}[loop,controls,poster=first]{12}
+          \multiframe{\int_use:N \l_bohr_tmax_int}{i=0+1}{%
+            \bohr_render_frame:n { #1 }
+          }
+        \end{animateinline}
+      }
+
+    \group_end:
+  }
+
+\ExplSyntaxOff
+
