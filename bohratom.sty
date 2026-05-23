@@ -8,9 +8,6 @@
 
 \ExplSyntaxOn
 
-% -------------------------------------------------
-% Variables
-% -------------------------------------------------
 \int_new:N \l_bohr_p_int
 \int_new:N \l_bohr_n_int
 \int_new:N \l_bohr_e_int
@@ -37,9 +34,6 @@
 \fp_new:N \l_bohr_rC_fp
 \fp_new:N \l_bohr_rD_fp
 
-% -------------------------------------------------
-% Keys
-% -------------------------------------------------
 \keys_define:nn { bohr }
   {
     p       .int_set:N = \l_bohr_p_int,
@@ -56,16 +50,13 @@
 \int_set:Nn \l_bohr_p_int { 0 }
 \int_set:Nn \l_bohr_n_int { 0 }
 \int_set:Nn \l_bohr_e_int { 0 }
-\int_set:Nn \l_bohr_tmax_int { 60 }
+\int_set:Nn \l_bohr_tmax_int { 120 }
 
 \fp_set:Nn \l_bohr_size_fp { 0.7 }
-\fp_set:Nn \l_bohr_speed_fp { 0.5 }
+\fp_set:Nn \l_bohr_speed_fp { 1.0 }
 
 \bool_set_true:N \l_bohr_animate_bool
 
-% -------------------------------------------------
-% Nucleus
-% -------------------------------------------------
 \cs_new_protected:Npn \bohr_draw_nucleus:
   {
     \begin{scope}
@@ -101,9 +92,6 @@
     \end{scope}
   }
 
-% -------------------------------------------------
-% Electrons
-% -------------------------------------------------
 \cs_new_protected:Npn \bohr_draw_electrons:nnnnn #1#2#3#4#5
   {
     \int_compare:nNnT { #1 } > { 0 }
@@ -123,9 +111,6 @@
       }
   }
 
-% -------------------------------------------------
-% Frame renderer
-% -------------------------------------------------
 \cs_new_protected:Npn \bohr_render_frame:n #1
   {
     \begin{tikzpicture}[scale=\fp_to_decimal:N \l_bohr_size_fp]
@@ -196,9 +181,6 @@
     \end{tikzpicture}
   }
 
-% -------------------------------------------------
-% Public command
-% -------------------------------------------------
 \NewDocumentCommand{\bohrsatom}{m m}
   {
     \group_begin:
