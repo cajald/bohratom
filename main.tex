@@ -69,7 +69,7 @@ Additionally, you can use the \texttt{speed} key to set the angular velocity the
 
 You can use the \texttt{tmax} key to determine how any frames are generated. If this number is high, compilation times and output size will be significantly higher, but the animation will be smoother, if it is lower, the animation will be less smooth, but smaller PDF size and fast compilation times.
 
-You can also use the \texttt{size} key to specify the size of the diagram, the default is $0.8$.
+The \texttt{animation} key is a boolean key (either \texttt{true} or \texttt{false}), it determines whether to animate the diagram or not. If it is not animated, the compilation size will be much smaller and compilation will be much quicker, but there will be no animations. On this mode, the controls are also hidden. Default is \texttt{true}. You can also use the \texttt{size} key to specify the size of the diagram, the default is $0.8$.
 
 \subsection{Short Reference}
 
@@ -83,6 +83,7 @@ You can also use the \texttt{size} key to specify the size of the diagram, the d
 \texttt{speed} & Angular speed & 0.8 \\
 \texttt{tmax} & Number of animation frames & 6 \\
 \texttt{size} & Scale factor & 0.8 \\
+\texttt{animated} & Whether to animate the diagram or not & true \\
 \end{tabular}
 \end{center}
 
@@ -95,7 +96,8 @@ Or:
 	e=<electrons>,
 	speed=<float>,
 	tmax=<integer>,
-	size=<float>
+	size=<float>,
+	animate=<boolean>
 }
 \end{verbatim}
 
@@ -103,7 +105,7 @@ Or:
 
 \bohrsatom{$^{4}He$}{p=2,n=2,e=2}
 \bohrsatom{$^{12}C$}{p=6,n=6,e=6,speed=2.0,tmax=60,size=1.0}
-\bohrsatom{$^{20}Ne$}{p=10,n=10,e=10}
+\bohrsatom{$^{20}Ne$}{p=10,n=10,e=10,animate=false}
 
 \section{Misc}
 
