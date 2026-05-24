@@ -4,6 +4,7 @@
 ]{article}
 
 \usepackage{bohratom}
+\usepackage{hyperref}
 \setcounter{page}{1}
 
 \title{Bohr's model: A \LaTeX\\ Library for making Bohr's Model renders}
@@ -16,18 +17,49 @@
 \maketitle
 
 \begin{abstract}
-	\noindent This \LaTeX{} package provides a TikZ-based, simplified animated interface for displaying atoms and their composition, visually, using Bohr's Model. It simplifies the listing by ommiting orbitals and assuming electrons orbit the nucleus.
+	\noindent This \LaTeX{} package provides a TikZ-based, simplified animated interface for displaying atoms and their composition, visually, using Bohr's Model. It simplifies the listing by omiting orbitals and assuming electrons orbit the nucleus.
 \end{abstract}
 
 \section{Introduction}
 
-Bohr's model (or Rutherford-Bohr model) is an obsolete (as a theory, but still used and mostly correct for illustration) model of what an atom looked like. It proposed that an atom had a nucleus, and electrons orbiting around the nucleus, analogous to the Solar System. It was based upon Ernest Rutherford's discovery of the atom nucleus, and incorporated some very early quantum concepts, and obsoleted the \textit{plum pudding model} of J.J. Thomson.
+Bohr's model (or Rutherford--Bohr model) is an obsolete (as a theory, but still used and mostly correct for illustration) model of what an atom looked like. It proposed that an atom had a nucleus, and electrons orbiting the nucleus, analogous to the Solar System. It was based upon Ernest Rutherford's discovery of the atom nucleus, and incorporated some very early quantum concepts, and supplanted the \textit{plum pudding model} of J.J. Thomson.
 
 This theory explained correctly the Rydberg formula for hydrogen's spectral emission lines, although at that time it was experimental. In the 1920s, it was replaced by the quantum mechanical model, which used \textit{orbitals} instead of a circular orbit, and is based on Schr\"odinger's wave equation, orbitals, and quantum physics.
 
+This library renders atoms (animated) ---assuming this model---, and allows you to configure different options.
+
+\section{Installation}
+
+Copy \texttt{bohratom.sty} from \href{https://raw.githubusercontent.com/cajald/bohratom/refs/heads/main/bohratom.sty}{the GitHub repository}, (must be named exactly \texttt{bohratom.sty}) and put it on the same directory as your document, or install it to your local \TeX{} package directory. Load the package using:
+
+\begin{verbatim}
+\usepackage{bohratom}
+\end{verbatim}
+
+This package depends on TikZ and \texttt{animate}.
+
+\subsection{Animations}
+
+This package uses the \texttt{animate} package for making PDF animations, compile with:
+
+\begin{itemize}
+	\item \texttt{pdflatex}
+	\item \texttt{lualatex}
+\end{itemize}
+
+Animation support depends on the viewer. Many browsers (like Chrome) do not support animations. Some viewers that do include (but not limited to):
+
+\begin{itemize}
+	\item Firefox (PDF.js)
+	\item Adobe Acrobat (recommended)
+	\item Chrome, if the PDF.js extension is installed
+	\item KDE Okular
+	\item Foxit reader
+\end{itemize}
+
 \section{Library API}
 
-Use the \texttt{\textbackslash bohrsatom} request to make a new atom display. It requires TikZ to be available and animation support, and takes two arguments: the name and the composition. The name is just text that will be displayed alongside the atom, and the composition is on the format of: \texttt{p=\textit{number of protons},e=\textit{number of electrons},n=\textit{number of neutrons}}. You can skip any \textit{key} to implicitly set it to zero.
+Use the \texttt{\textbackslash bohrsatom} command to make a new atom display. It requires TikZ to be available and animation support, and takes two arguments: the name and the composition. The name is just text that will be displayed alongside the atom, and the composition is on the format of: \texttt{p=\textit{number of protons},e=\textit{number of electrons},n=\textit{number of neutrons}}. You can skip any \textit{key} to implicitly set it to zero.
 
 Additionally, you can use the \texttt{speed} key to set the angular velocity the electrons rotate around the nucleus, in degrees per frame. Default is $0.8$. The effective angular velocity for an atom with $6$ frames (the default) is:
 
@@ -37,15 +69,74 @@ Additionally, you can use the \texttt{speed} key to set the angular velocity the
 
 You can use the \texttt{tmax} key to determine how any frames are generated. If this number is high, compilation times and output size will be significantly higher, but the animation will be smoother, if it is lower, the animation will be less smooth, but smaller PDF size and fast compilation times.
 
-You can also used the \texttt{size} key to specify the size of the diagram, the default is $0.8$.
+You can also use the \texttt{size} key to specify the size of the diagram, the default is $0.8$.
 
-On the future, options will be able to be overriden globally.
+\subsection{Short Reference}
+
+\begin{center}
+\begin{tabular}{l l l}
+\textbf{Key} & \textbf{Description} & \textbf{Default} \\
+\hline
+\texttt{p} & Number of protons & 0 \\
+\texttt{n} & Number of neutrons & 0 \\
+\texttt{e} & Number of electrons & 0 \\
+\texttt{speed} & Angular speed & 0.8 \\
+\texttt{tmax} & Number of animation frames & 6 \\
+\texttt{size} & Scale factor & 0.8 \\
+\end{tabular}
+\end{center}
+
+Or:
+
+\begin{verbatim}
+\bohrsatom{<label>}{
+	p=<protons>,
+	n=<neutrons>,
+	e=<electrons>,
+	speed=<float>,
+	tmax=<integer>,
+	size=<float>
+}
+\end{verbatim}
 
 \section{Examples}
 
 \bohrsatom{$^{4}He$}{p=2,n=2,e=2}
 \bohrsatom{$^{12}C$}{p=6,n=6,e=6,speed=2.0,tmax=60,size=1.0}
 \bohrsatom{$^{20}Ne$}{p=10,n=10,e=10}
+
+\section{Misc}
+
+\subsection{Information}
+
+Repository: \quad\href{https://github.com/cajald/bohratom}{Github: cajald/bohratom}
+
+\noindent Issues: \quad\href{https://github.com/cajald/bohratom/issues}{github.com/cajald/bohratom/issues}
+
+\noindent Pull requests: \quad\href{https://github.com/cajald/bohratom/pulls}{github.com/cajald/bohratom/pulls}
+
+\subsection{License}
+
+This package is released under the \href{https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt}{public domain}, made by Mario Rosell Rabinal.
+
+\subsection{Version history}
+
+Current:\quad{}\textbf{v0.1}
+
+\begin{itemize}
+	\item v0.1 -- Initial Release
+\end{itemize}
+
+\subsection{Future work}
+
+Planned features incclude:
+
+\begin{itemize}
+	\item global configuration overrides
+	\item customizable colors
+	\item SVG mode
+	\item Nucleon visualization
+\end{itemize}
 
 \end{document}
 
